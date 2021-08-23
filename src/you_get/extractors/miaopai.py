@@ -22,7 +22,7 @@ def miaopai_download_by_fid(fid, output_dir = '.', merge = False, info_only = Fa
     page_url = 'https://video.weibo.com/show?fid=' + fid + '&type=mp4'
 
     mobile_page = get_content(page_url, headers=fake_headers_mobile)
-    url = match1(mobile_page, r'<video id=.*?src=[\'"](.*?)[\'"]\W')
+    url = match1(mobile_page, r'<video(\s.*)?\sid=.*?src=[\'"](.*?)[\'"]\W')
     if url is None:
         wb_mp = re.search(r'<script src=([\'"])(.+?wb_mp\.js)\1>', mobile_page).group(2)
         return miaopai_download_by_wbmp(wb_mp, fid, output_dir=output_dir, merge=merge,
