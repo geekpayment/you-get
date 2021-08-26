@@ -19,6 +19,7 @@ class MockBrowser:
         if not debug:
             opt.add_argument('--headless')
         opt.add_argument('--no-sandbox')
+        opt.add_argument('--disable-gpu')
         opt.add_argument('--disable-dev-shm-usage')
         opt.add_argument('--disable-blink-features')
         opt.add_argument('--disable-blink-features=AutomationControlled')
