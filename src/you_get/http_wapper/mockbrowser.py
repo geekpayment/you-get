@@ -23,6 +23,7 @@ class MockBrowser:
         opt.add_argument('--disable-dev-shm-usage')
         opt.add_argument('--disable-blink-features')
         opt.add_argument('--disable-blink-features=AutomationControlled')
+        opt.add_argument('--window-size=1420,1080')
         ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.74 Safari/537.36 Edg/79.0.309.43'
         opt.add_argument(f'user-agent={ua}')
         opt.add_experimental_option('excludeSwitches', ['enable-automation'])
