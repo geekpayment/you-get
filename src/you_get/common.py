@@ -470,7 +470,7 @@ def get_content(url, headers={}, decoded=True):
         else:
             data = data.decode('utf-8', 'ignore')
 
-    return data, response.url
+    return data
 
 
 def post_content(url, headers={}, post_data={}, decoded=True, **kwargs):
