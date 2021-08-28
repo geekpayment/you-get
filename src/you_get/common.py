@@ -66,6 +66,7 @@ SITES = {
     'isuntv': 'suntv',
     'iwara': 'iwara',
     'joy': 'joy',
+    'jse': 'jse_edu',
     'kankanews': 'bilibili',
     'kakao': 'kakao',
     'khanacademy': 'khan',
@@ -1800,7 +1801,7 @@ def url_to_module(url):
         video_host = r1(r'https?://([^/]+)/', url)
         video_url = r1(r'https?://[^/]+(.*)', url)
 
-    if video_host.endswith('.com.cn') or video_host.endswith('.ac.cn'):
+    if video_host.endswith('.com.cn') or video_host.endswith('.ac.cn') or video_host.endswith('.edu.cn'):
         video_host = video_host[:-3]
     domain = r1(r'(\.[^.]+\.[^.]+)$', video_host) or video_host
     assert domain, 'unsupported url: ' + url

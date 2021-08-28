@@ -41,18 +41,15 @@ class HttpClient:
     _user_agent = None
     _last_response = None
     _current_url = None
-    _upgrade_insecure_requests = False
 
-    def __init__(self, user_agent: str = None, upgrade_insecure_requests=False):
+    def __init__(self, user_agent: str = None):
         self._user_agent = user_agent or default_ua
         self._opener = request.build_opener(NoRedirection)
-        self._upgrade_insecure_requests = upgrade_insecure_requests
 
-    def _merge_headers(self, url, method, headers=None) -> Dict[str, str]:
-        if headers is None:
-            headers = fake_headers.copy()
-        else:
-            headers = fake_headers.copy().update(headers)
+    def _merge_headers(self, headers=None) -> Dict[str, str]:
+        headers = fake_headers.copy()
+        if headers is not None:
+            headers.update(headers)
         if self._current_url is not None:
             headers['Referer'] = self._current_url
             url = parse.urlparse(self._current_url)
@@ -60,18 +57,10 @@ class HttpClient:
         headers['User-Agent'] = self._user_agent
         if len(self._cookies) > 0:
             headers['Cookie'] = '; '.join([f"{key}={val}" for key, val in self._cookies.items()])
-        if self._upgrade_insecure_requests:
-            url_obj = parse.urlparse(url)
-            if url_obj.scheme == 'http':
-                headers[':scheme'] = 'https'
-                headers[':method'] = method
-                headers[':authority'] = url_obj.hostname
-                headers[':path'] = url_obj.path + ('?' + url_obj.query if len(url_obj.query) > 0 else '')
-                headers['upgrade-insecure-requests'] = '1'
         return headers
 
     def request(self, url, method='GET', data=None, headers=None, decoded=True):
-        req_header = self._merge_headers(url, method, headers)
+        req_header = self._merge_headers(headers)
         data = self._encode_data(method, req_header, data)
         req = request.Request(url, method=method, headers=req_header, data=data)
         try:

@@ -12,7 +12,7 @@ output_dir = os.path.join(tempfile.gettempdir(),
                               random.choices(string.ascii_lowercase, k=5)))
 
 os.mkdir(output_dir)
-
+print(f'output dir {output_dir}')
 
 class SitesTest(unittest.TestCase):
 
