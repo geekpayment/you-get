@@ -192,7 +192,7 @@ class YouTube(VideoExtractor):
                 self.download_playlist_by_url(self.url, **kwargs)
                 exit(0)
 
-        if re.search('\Wlist=', self.url) and not kwargs.get('playlist'):
+        if re.search(r'\Wlist=', self.url) and not kwargs.get('playlist'):
             log.w('This video is from a playlist. (use --playlist to download all videos in the playlist.)')
 
         # Get video info
@@ -214,7 +214,7 @@ class YouTube(VideoExtractor):
                 try:
                     try:
                         # Complete ytplayer_config
-                        ytplayer_config = json.loads(re.search('ytplayer.config\s*=\s*([^\n]+?});', video_page).group(1))
+                        ytplayer_config = json.loads(re.search(r'ytplayer.config\s*=\s*([^\n]+?});', video_page).group(1))
 
                         # Workaround: get_video_info returns bad s. Why?
                         if 'url_encoded_fmt_stream_map' not in ytplayer_config['args']:
@@ -225,21 +225,21 @@ class YouTube(VideoExtractor):
 
                         if 'assets' in ytplayer_config:
                             self.html5player = 'https://www.youtube.com' + ytplayer_config['assets']['js']
-                        elif re.search('([^"]*/base\.js)"', video_page):
-                            self.html5player = 'https://www.youtube.com' + re.search('([^"]*/base\.js)"', video_page).group(1)
-                            self.html5player = self.html5player.replace('\/', '/') # unescape URL
+                        elif re.search(r'([^"]*/base\.js)"', video_page):
+                            self.html5player = 'https://www.youtube.com' + re.search(r'([^"]*/base\.js)"', video_page).group(1)
+                            self.html5player = self.html5player.replace(r'\/', '/') # unescape URL
                         else:
                             self.html5player = None
 
                     except:
                         # ytplayer_config = {args:{raw_player_response:ytInitialPlayerResponse}}
-                        ytInitialPlayerResponse = json.loads(re.search('ytInitialPlayerResponse\s*=\s*([^\n]+?});', video_page).group(1))
+                        ytInitialPlayerResponse = json.loads(re.search(r'ytInitialPlayerResponse\s*=\s*([^\n]+?});', video_page).group(1))
 
                         stream_list = ytInitialPlayerResponse['streamingData']['formats']
                         #stream_list = ytInitialPlayerResponse['streamingData']['adaptiveFormats']
 
-                        if re.search('([^"]*/base\.js)"', video_page):
-                            self.html5player = 'https://www.youtube.com' + re.search('([^"]*/base\.js)"', video_page).group(1)
+                        if re.search(r'([^"]*/base\.js)"', video_page):
+                            self.html5player = 'https://www.youtube.com' + re.search(r'([^"]*/base\.js)"', video_page).group(1)
                         else:
                             self.html5player = None
 
@@ -249,8 +249,8 @@ class YouTube(VideoExtractor):
                     else:
                         stream_list = video_info['url_encoded_fmt_stream_map'][0].split(',')
 
-                    if re.search('([^"]*/base\.js)"', video_page):
-                        self.html5player = 'https://www.youtube.com' + re.search('([^"]*/base\.js)"', video_page).group(1)
+                    if re.search(r'([^"]*/base\.js)"', video_page):
+                        self.html5player = 'https://www.youtube.com' + re.search(r'([^"]*/base\.js)"', video_page).group(1)
                     else:
                         self.html5player = None
 
@@ -258,11 +258,11 @@ class YouTube(VideoExtractor):
                 # Parse video page instead
                 video_page = get_content('https://www.youtube.com/watch?v=%s' % self.vid)
 
-                ytInitialPlayerResponse = json.loads(re.search('ytInitialPlayerResponse\s*=\s*([^\n]+?});', video_page).group(1))
+                ytInitialPlayerResponse = json.loads(re.search(r'ytInitialPlayerResponse\s*=\s*([^\n]+?});', video_page).group(1))
 
                 self.title = ytInitialPlayerResponse["videoDetails"]["title"]
-                if re.search('([^"]*/base\.js)"', video_page):
-                    self.html5player = 'https://www.youtube.com' + re.search('([^"]*/base\.js)"', video_page).group(1)
+                if re.search(r'([^"]*/base\.js)"', video_page):
+                    self.html5player = 'https://www.youtube.com' + re.search(r'([^"]*/base\.js)"', video_page).group(1)
                 else:
                     self.html5player = None
 
@@ -291,7 +291,7 @@ class YouTube(VideoExtractor):
                     video_page = get_content('https://www.youtube.com/watch?v=%s' % self.vid)
 
                 try:
-                    ytplayer_config = json.loads(re.search('ytplayer.config\s*=\s*([^\n]+});ytplayer', video_page).group(1))
+                    ytplayer_config = json.loads(re.search(r'ytplayer.config\s*=\s*([^\n]+});ytplayer', video_page).group(1))
                 except:
                     msg = re.search('class="message">([^<]+)<', video_page).group(1)
                     log.wtf('[Failed] Got message "%s". Try to login with --cookies.' % msg.strip())
@@ -468,7 +468,7 @@ class YouTube(VideoExtractor):
         except:
             # VEVO
             if not self.html5player: return
-            self.html5player = self.html5player.replace('\/', '/') # unescape URL (for age-restricted videos)
+            self.html5player = self.html5player.replace(r'\/', '/') # unescape URL (for age-restricted videos)
             self.js = get_content(self.html5player)
 
             try:
