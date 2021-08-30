@@ -102,7 +102,7 @@ class VimeoExtractor(VideoExtractor):
         pos = 0
         while pos < len(lines):
             if lines[pos].startswith('#EXT-X-STREAM-INF'):
-                patt = 'RESOLUTION=(\d+)x(\d+)'
+                patt = r'RESOLUTION=(\d+)x(\d+)'
                 hit = re.search(patt, lines[pos])
                 if hit is None:
                     continue
@@ -132,7 +132,7 @@ class VimeoExtractor(VideoExtractor):
 
 
 def vimeo_download_by_id(id, title=None, output_dir='.', merge=True, info_only=False, **kwargs):
-    '''
+    r'''
     try:
         # normal Vimeo video
         html = get_content('https://vimeo.com/' + id)

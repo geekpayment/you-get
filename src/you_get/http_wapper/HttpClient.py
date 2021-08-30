@@ -46,10 +46,10 @@ class HttpClient:
         self._user_agent = user_agent or default_ua
         self._opener = request.build_opener(NoRedirection)
 
-    def _merge_headers(self, headers=None) -> Dict[str, str]:
+    def _merge_headers(self, url, custom_headers=None) -> Dict[str, str]:
         headers = fake_headers.copy()
-        if headers is not None:
-            headers.update(headers)
+        if custom_headers is not None:
+            headers.update(custom_headers)
         if self._current_url is not None:
             headers['Referer'] = self._current_url
             url = parse.urlparse(self._current_url)
@@ -60,7 +60,7 @@ class HttpClient:
         return headers
 
     def request(self, url, method='GET', data=None, headers=None, decoded=True):
-        req_header = self._merge_headers(headers)
+        req_header = self._merge_headers(url, headers)
         data = self._encode_data(method, req_header, data)
         req = request.Request(url, method=method, headers=req_header, data=data)
         try:

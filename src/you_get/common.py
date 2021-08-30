@@ -155,6 +155,24 @@ else:
     default_encoding = locale.getpreferredencoding().lower()
 
 
+class DefaultProgressFactory:
+    def get_progress(self, totalsize, pieces):
+        if totalsize is not None:
+            return self.init_bar(totalsize, pieces)
+        else:
+            return self.init_no_size_bar(pieces)
+
+    def init_no_size_bar(self, pieces):
+        return PiecesProgressBar(None, pieces)
+
+    def init_bar(self, size, pieces):
+        return SimpleProgressBar(size, pieces)
+
+
+progress_factory = DefaultProgressFactory()
+max_download_size = None
+
+
 def rc4(key, data):
     # all encryption algo should work on bytes
     assert type(key) == type(data) and type(key) == type(b'')
@@ -389,7 +407,7 @@ def get_decoded_html(url, faker=False):
 def get_location(url, headers=None, get_method='HEAD'):
     logging.debug('get_location: %s' % url)
     cli = HttpClient()
-    cli.request(url,method=get_method, headers=headers)
+    cli.request(url, method=get_method, headers=headers)
     return cli.current_url
     # if headers:
     #     req = request.Request(url, headers=headers)
@@ -1005,9 +1023,15 @@ def download_urls(
                 log.w('Skipping %s: file already exists' % output_filepath)
             print()
             return
-        bar = SimpleProgressBar(total_size, len(urls))
-    else:
-        bar = PiecesProgressBar(total_size, len(urls))
+        global max_download_size
+        if max_download_size is not None and total_size > max_download_size:
+            log.e('Skipping due to object size exceeded')
+            print()
+            return
+    global progress_factory
+    if progress_factory is None:
+        progress_factory = DefaultProgressFactory()
+    bar = progress_factory.get_progress(total_size, len(urls))
 
     if len(urls) == 1:
         url = urls[0]
@@ -1827,6 +1851,15 @@ def url_to_module(url):
             return url_to_module(location)
         else:
             return import_module('you_get.extractors.universal'), url
+
+
+def config_env(download_limit=None, progress_fact=None):
+    if download_limit is not None:
+        global max_download_size
+        max_download_size = download_limit
+    if progress_fact is not None:
+        global progress_factory
+        progress_factory = progress_fact
 
 
 def any_download(url, **kwargs):
