@@ -11,6 +11,7 @@ import locale
 import logging
 import argparse
 import ssl
+import threading
 from http import cookiejar
 from importlib import import_module
 from urllib import request, parse, error
@@ -139,6 +140,7 @@ cookies = None
 output_filename = None
 auto_rename = False
 insecure = False
+thread_local = threading.local()
 
 fake_headers = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',  # noqa
@@ -167,10 +169,6 @@ class DefaultProgressFactory:
 
     def init_bar(self, size, pieces):
         return SimpleProgressBar(size, pieces)
-
-
-progress_factory = DefaultProgressFactory()
-max_download_size = None
 
 
 def rc4(key, data):
@@ -1023,14 +1021,13 @@ def download_urls(
                 log.w('Skipping %s: file already exists' % output_filepath)
             print()
             return
-        global max_download_size
+        max_download_size = thread_local.max_download_size if hasattr(thread_local, 'max_download_size') else None
         if max_download_size is not None and total_size > max_download_size:
             log.e('Skipping due to object size exceeded')
             print()
             return
-    global progress_factory
-    if progress_factory is None:
-        progress_factory = DefaultProgressFactory()
+    progress_factory = thread_local.progress_factory if hasattr(thread_local,
+                                                                'progress_factory') else DefaultProgressFactory()
     bar = progress_factory.get_progress(total_size, len(urls))
 
     if len(urls) == 1:
@@ -1855,11 +1852,9 @@ def url_to_module(url):
 
 def config_env(download_limit=None, progress_fact=None):
     if download_limit is not None:
-        global max_download_size
-        max_download_size = download_limit
+        thread_local.max_download_size = download_limit
     if progress_fact is not None:
-        global progress_factory
-        progress_factory = progress_fact
+        thread_local.progress_factory = progress_fact
 
 
 def any_download(url, **kwargs):
