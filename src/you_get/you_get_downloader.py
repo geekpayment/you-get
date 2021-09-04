@@ -126,6 +126,15 @@ class YouGetDownloader:
 
     def download(self, url, progress_callback: Callable[[ProgressBundle], None] = None,
                  video_info_callback: Callable[[dict], None] = None, **kwargs):
+        """
+        video info callback:
+        {
+            "title": "video title",
+            "site_info": "site",
+            "size": 1000,
+            "type": "video_type"
+        }
+        """
         if progress_callback is not None:
             config_env(progress_fact=ProgressWithTriggerFactory(progress_callback),
                        video_info_callback=video_info_callback)
