@@ -124,7 +124,9 @@ class YouGetDownloader:
             self._output_dir = os.path.abspath(output_dir)
             log.d(f'configured output dir {self._output_dir}')
 
-    def download(self, url, progress_callback: Callable[[ProgressBundle], None] = None, **kwargs):
+    def download(self, url, progress_callback: Callable[[ProgressBundle], None] = None,
+                 video_info_callback: Callable[[dict], None] = None, **kwargs):
         if progress_callback is not None:
-            config_env(progress_fact=ProgressWithTriggerFactory(progress_callback))
+            config_env(progress_fact=ProgressWithTriggerFactory(progress_callback),
+                       video_info_callback=video_info_callback)
         any_download(url, merge=True, output_dir=self._output_dir, info_only=False, **kwargs)
