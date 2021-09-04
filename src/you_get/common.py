@@ -1282,14 +1282,18 @@ def print_info(site_info, title, type, size, **kwargs):
     maybe_print('Site:      ', site_info)
     maybe_print('Title:     ', unescape_html(tr(title)))
     print('Type:      ', type_info)
+    info_obj = dict(site_info=site_info, title=unescape_html(tr(title)), type=type_info)
     if type != 'm3u8':
         print(
             'Size:      ', round(size / 1048576, 2),
             'MiB (' + str(size) + ' Bytes)'
         )
+        info_obj['size'] = size
     if type == 'm3u8' and 'm3u8_url' in kwargs:
         print('M3U8 Url:   {}'.format(kwargs['m3u8_url']))
     print()
+    if hasattr(thread_local, 'type_callback'):
+        thread_local.type_callback(info_obj)
 
 
 def mime_to_container(mime):
@@ -1850,11 +1854,13 @@ def url_to_module(url):
             return import_module('you_get.extractors.universal'), url
 
 
-def config_env(download_limit=None, progress_fact=None):
+def config_env(download_limit=None, progress_fact=None, video_info_callback=None):
     if download_limit is not None:
         thread_local.max_download_size = download_limit
     if progress_fact is not None:
         thread_local.progress_factory = progress_fact
+    if video_info_callback is not None:
+        thread_local.type_callback = video_info_callback
 
 
 def any_download(url, **kwargs):
